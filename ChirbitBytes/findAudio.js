@@ -1,33 +1,40 @@
-findAudio(document.firstChild.childNodes[1].childNodes[1].firstChild.firstChild);
+findAudio(tab.firstChild.childNodes[1].childNodes[1].firstChild.firstChild);
 
 function findAudio(node)
 {
-  var found = false;
+  var test;
   
-  while(!found)
+  while(true)
   {
     var line_content = node.childNodes[1];
-    if(line_content.firstChild.nodeType == 3)
-      imgURL = parseAudio(line_content.firstChild);
+    if(line_content.firstChild.nodeType == 3 && 
+        line_content.firstChild.textContent.indexOf('this.element.jPlayer') > -1)
+    {
+      test = parseAudio(line_content.firstChild.textContent);
+      break;
+    }
     node = node.nextSibling;
   }
+  
+  return test;
 }
 
-function parseAudio(textNode)
+function parseAudio(text)
 {
-  var string;
+  var string = text;
   
-  return string;
+  var start = string.search('http');
+  var end = string.search('.mp3') + 3;
+  
+  return string.slice(start, end);
 }
 
 function saveImageAs(imgURL)
 {
-  if(typeof imgOrURL == 'object')
-    imgOrURL = imgOrURL.src;
-    
-  window.win = open(imgOrURL);
-  setTimeout(win.resizeTo(0, 0),100);
-  setTimeout(win.moveTo(0, 0),200);
-  setTimeout(win.document.execCommand("SaveAs"), 500);
-  setTimeout(win.close(),1000);
+  chrome.downloads.download(imgURL);
 }
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    sendResponse( {farewell: findAudio()} );
+  });

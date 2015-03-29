@@ -1,10 +1,21 @@
-chrome.extension.onMessage.addListener(function(message, sender) {
-    if (message && message.type === 'showPageAction') {
-        var tab = sender.tab;
-        chrome.pageAction.show(tab.id);
-        chrome.pageAction.setTitle({
-            tabId: tab.id,
-            title: 'url=' + tab.url
-        });
-    }
-});
+function checkForValidUrl(tabId, changeInfo, tab) {
+
+   // If  'example.com' is the hostname for the tabs url.
+   var a = document.createElement ('a');
+   a.href = tab.url;
+   
+   if (a.hostname == 'chirb.it') {
+       // ... show the page action.
+       chrome.pageAction.show(tabId);
+   }
+}
+
+// Listen for any changes to the URL of any tab.
+chrome.tabs.onUpdated.addListener(checkForValidUrl);
+
+chrome.pageAction.onClicked.addListener(
+  function()
+  {
+    chrome.runtime.sendMessage({greeting: 'find'});
+  }
+);
